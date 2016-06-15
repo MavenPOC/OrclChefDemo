@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>Continuous_Delivery_Stage6_IntegrationTest, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>${JENKINS_HOME}/workspace/DemoProject</customWorkspace>
+  <builders>
+    <hudson.tasks.Maven>
+      <targets> clean install -DnewVersion=1.0.${BUILD_NUMBER}-SNAPSHOT</targets>
+      <mavenName>Maven</mavenName>
+      <pom>SampleExample/pom.xml</pom>
+      <usePrivateRepository>false</usePrivateRepository>
+      <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+      <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+    </hudson.tasks.Maven>
+    <hudson.tasks.BatchFile>
+      <command>echo &quot;This is a Demo Build&quot; &gt;build.txt</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.Maven>
+      <targets>deploy:deploy-file -Durl=http://localhost:8081/nexus/content/repositories/releases/  -Dclassifiers=build-notes  -DrepositoryId=releases  -Dtypes=txt  -Dfile=SampleExample/target/SampleExample-1.0.0-SNAPSHOT.war  -Dfiles=build.txt  -DgroupId=com.javacodegeeks  -DartifactId=SampleExample  -Dversion=${BUILD_NUMBER} -Dpackaging=war</targets>
+      <mavenName>Maven</mavenName>
+      <usePrivateRepository>false</usePrivateRepository>
+      <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+      <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+    </hudson.tasks.Maven>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>SampleExample/target/*.war</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>
